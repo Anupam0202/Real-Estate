@@ -59,13 +59,25 @@ export async function getServerSideProps({ query }) {
   const locationExternalIDs = query.locationExternalIDs || '5002';
   const categoryExternalID = query.categoryExternalID || '4';
 
-  const data = await fetchApi(`${baseUrl}/properties/list?locationExternalIDs=${locationExternalIDs}&purpose=${purpose}&categoryExternalID=${categoryExternalID}&bathsMin=${bathsMin}&rentFrequency=${rentFrequency}&priceMin=${minPrice}&priceMax=${maxPrice}&roomsMin=${roomsMin}&sort=${sort}&areaMax=${areaMax}`);
+  const params = new URLSearchParams({
+    locationExternalIDs,
+    purpose,
+    categoryExternalID,
+    bathsMin,
+    rentFrequency,
+    priceMin: minPrice,
+    priceMax: maxPrice,
+    roomsMin,
+    sort,
+    areaMax,
+  });
 
-  return {
-    props: {
-      properties: data?.hits,
-    },
-  };
+  try {
+    const data = await fetchApi(`${baseUrl}/properties/list?${params}`);
+    return { props: { properties: data?.hits ?? [] } };
+  } catch (error) {
+    return { props: { properties: [] } };
+  }
 }
 
 export default Search;

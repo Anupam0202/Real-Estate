@@ -62,11 +62,10 @@ const PropertyDetails = ({ propertyDetails: { price, rentFrequency, rooms, title
 export default PropertyDetails;
 
 export async function getServerSideProps({ params: { id } }) {
-  const data = await fetchApi(`${baseUrl}/properties/detail?externalID=${id}`);
-  
-  return {
-    props: {
-      propertyDetails: data,
-    },
-  };
+  try {
+    const data = await fetchApi(`${baseUrl}/properties/detail?externalID=${encodeURIComponent(id)}`);
+    return { props: { propertyDetails: data } };
+  } catch (error) {
+    return { notFound: true };
+  }
 }
