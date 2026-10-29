@@ -51,15 +51,24 @@ const Home = ({ propertiesForSale, propertiesForRent }) => (
   </Box>
 );
 
+const listProperties = async (purpose) => {
+  try {
+    const data = await fetchApi(`${baseUrl}/properties/list?locationExternalIDs=5002&purpose=${purpose}&hitsPerPage=6`);
+    return data?.hits ?? [];
+  } catch (error) {
+    return [];
+  }
+};
+
 export async function getStaticProps() {
-  const propertyForSale = await fetchApi(`${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-sale&hitsPerPage=6`);
-  const propertyForRent = await fetchApi(`${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-rent&hitsPerPage=6`);
+  const [propertiesForSale, propertiesForRent] = await Promise.all([
+    listProperties('for-sale'),
+    listProperties('for-rent'),
+  ]);
 
   return {
-    props: {
-      propertiesForSale: propertyForSale?.hits,
-      propertiesForRent: propertyForRent?.hits,
-    },
+    props: { propertiesForSale, propertiesForRent },
+    revalidate: 3600,
   };
 }
 
